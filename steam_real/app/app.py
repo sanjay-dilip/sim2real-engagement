@@ -32,6 +32,8 @@ MODELS_DIR = PROJECT_ROOT / "models"
 ML_DATASET_PATH = DATA_DIR / "ml_dataset.parquet"
 MODEL_PATH = MODELS_DIR / "churn_model.pkl"
 SENSITIVITY_PATH = PROJECT_ROOT / "results" / "sensitivity_analysis.json"
+STABILITY_V1_PATH = PROJECT_ROOT / "results" / "stability_steam_v1.json"
+STABILITY_V2_PATH = PROJECT_ROOT / "results" / "stability_steam_v2.json"
 # -----------------------
 # Load data
 # -----------------------
@@ -46,9 +48,15 @@ def load_model():
 def load_sensitivity_analysis():
     with open(SENSITIVITY_PATH, "r") as f:
         return json.load(f)
+@st.cache_data
+def load_stability(path):
+    with open(path, "r") as f:
+        return json.load(f)
 ml_df = load_data()
 model = load_model()
 sensitivity = load_sensitivity_analysis()
+stability_v1 = load_stability(STABILITY_V1_PATH)
+stability_v2 = load_stability(STABILITY_V2_PATH)
 # Add engagement tiers (same logic as notebook)
 ml_df["playtime_tier"] = pd.qcut(
     ml_df["total_playtime_value"],
@@ -65,6 +73,7 @@ section = st.sidebar.radio(
         "Engagement Tiers",
         "Churn & Model Insights",
         "Churn Definition Comparison (v1 vs v2)",
+        "Stability & Uncertainty",
         "User-Level Exploration",
     ],
 )
@@ -287,7 +296,67 @@ on v2 alone.
 """
     )
 # =====================================================
-# 5) USER-LEVEL EXPLORATION
+# 5) STABILITY & UNCERTAINTY
+# =====================================================
+elif section == "Stability & Uncertainty":
+    st.header("📐 Stability & Uncertainty (50-fold repeated cross-validation)")
+    st.markdown(
+        """
+Every other page in this dashboard reports numbers from a single 80/20 split.
+This page instead reports `RepeatedStratifiedKFold(n_splits=5, n_repeats=10)`
+(50 folds) for each churn definition -- mean, standard deviation, and a 95%
+interval per metric, plus feature-importance rank stability. Loaded from
+`results/stability_steam_v1.json` and `results/stability_steam_v2.json`.
+
+⚠️ **v1's numbers below are not a positive result.** Zero variance across 50
+folds confirms the label leakage is structural, not a lucky split.
+"""
+    )
+    rows = []
+    for label, stab in [("v1 (playtime)", stability_v1), ("v2 (library breadth)", stability_v2)]:
+        for metric_name in ["accuracy", "roc_auc", "pr_auc"]:
+            s = stab["metrics_summary"][metric_name]
+            rows.append(
+                {
+                    "definition": label,
+                    "metric": metric_name,
+                    "mean": s["mean"],
+                    "std": s["std"],
+                    "ci_low": s["ci_low"],
+                    "ci_high": s["ci_high"],
+                }
+            )
+    st.dataframe(pd.DataFrame(rows).set_index(["definition", "metric"]).style.format("{:.4f}"))
+    st.markdown(
+        f"""
+v1's std is **exactly 0.0000** for every metric across all 50 folds -- the model
+achieves perfect separation regardless of which rows land in which fold, because
+`churned` is a deterministic function of a feature the model can see.
+
+v2's ROC-AUC 95% interval is
+**[{stability_v2['metrics_summary']['roc_auc']['ci_low']:.3f}, {stability_v2['metrics_summary']['roc_auc']['ci_high']:.3f}]**
+-- it straddles 0.5 (chance), consistent with the DummyClassifier comparison on
+the "Churn Definition Comparison" page: this is a stable finding, not an
+artifact of one unlucky split.
+"""
+    )
+    st.subheader("Feature-importance rank stability (top-3 frequency across 50 folds)")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**v1 (playtime)**")
+        v1_imp = stability_v1["feature_importance_stability"]["features"]
+        st.dataframe(pd.DataFrame(v1_imp).T[["top_k_frequency", "mean_rank", "std_rank"]])
+    with col2:
+        st.markdown("**v2 (library breadth)**")
+        v2_imp = stability_v2["feature_importance_stability"]["features"]
+        st.dataframe(pd.DataFrame(v2_imp).T[["top_k_frequency", "mean_rank", "std_rank"]])
+    st.caption(
+        "top_k_frequency: fraction of the 50 folds where this feature ranked in the "
+        "top 3 by permutation importance. std_rank: how much its rank position "
+        "varies across folds -- lower is more stable."
+    )
+# =====================================================
+# 6) USER-LEVEL EXPLORATION
 # =====================================================
 elif section == "User-Level Exploration":
     st.header("👤 User-Level Exploration")

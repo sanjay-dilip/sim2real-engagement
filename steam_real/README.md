@@ -188,6 +188,48 @@ See `notebooks/churn_sensitivity_analysis.ipynb` for the full walkthrough with
 tables and plots, or the Steam dashboard's "Churn Definition Comparison (v1 vs
 v2)" page for an interactive version.
 
+### 6. Stability and uncertainty analysis
+
+Every metric elsewhere in this README comes from exactly one fixed split.
+`stability.py` runs `RepeatedStratifiedKFold(n_splits=5, n_repeats=10)` (50
+folds) for both v1 and v2, reporting mean/std/95% interval for each metric and
+feature-importance rank stability (top-3 frequency, rank variability) across
+folds. Results: `results/stability_steam_v1.json`, `results/stability_steam_v2.json`.
+
+**v1 — read this as leakage confirmation, not model quality:**
+
+| metric | mean | std | 95% interval |
+|---|---|---|---|
+| accuracy | 1.0000 | **0.0000** | [1.0000, 1.0000] |
+| roc_auc | 1.0000 | **0.0000** | [1.0000, 1.0000] |
+| pr_auc | 1.0000 | **0.0000** | [1.0000, 1.0000] |
+
+Standard deviation is exactly zero across all 50 folds, for every metric. This
+is not evidence of a good, stable model — it's confirmation that the
+leakage is *structural*: `churned` is a deterministic function of
+`total_playtime_value`, so no matter which rows land in which fold, the model
+can always separate the classes perfectly. `total_playtime_value` is also the
+most stable top feature possible: top-3 frequency 1.00, mean rank 1.00,
+rank std 0.000.
+
+**v2 — genuinely variable, and centered near chance:**
+
+| metric | mean | std | 95% interval |
+|---|---|---|---|
+| accuracy | 0.7306 | 0.0060 | [0.7204, 0.7422] |
+| roc_auc | 0.5167 | 0.0134 | [0.4948, 0.5430] |
+| pr_auc | 0.2481 | 0.0107 | [0.2295, 0.2698] |
+
+v2's ROC-AUC 95% interval ([0.495, 0.543]) straddles 0.5 — statistically
+indistinguishable from chance across every fold, not just the one split used
+in the sensitivity analysis. Its most stable top feature is `sessions` (top-3
+frequency 1.00, mean rank 1.04), not `total_playtime_value` (top-3 frequency
+0.84, mean rank 2.42) — a different, and less stable, importance ranking than
+v1's, consistent with the two definitions capturing different constructs.
+
+Wall-clock runtime: ~2.5 minutes for both v1 and v2 combined (RandomForest is
+fast; no reduction from the default 10 repeats was needed).
+
 ## Notebooks
 ### 1. explore_raw_logs.ipynb
 

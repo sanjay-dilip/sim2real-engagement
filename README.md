@@ -110,6 +110,14 @@ underlying generated numbers.
   even same-method Gini values wouldn't be directly comparable across them. Differences
   shown in that chart reflect a mix of data, label construction, model family, and
   importance-method effects — not "data availability" alone.
+- **All metrics above come from a single train/validation split** unless otherwise
+  noted. `shared/stability.py` (used by both pipelines) runs
+  `RepeatedStratifiedKFold(n_splits=5, n_repeats=10)` (50 folds) for the anime model
+  and both Steam churn models, reporting mean/std/95% intervals instead. Steam v1's
+  std is **exactly 0.0000** across all 50 folds for every metric — independent
+  confirmation the circularity is structural, not a lucky split, and should never be
+  read as evidence of a good model. See `anime_simulated/README.md`,
+  `steam_real/README.md`, and `*/results/stability_*.json` for full results.
 
 ## How to Run
 

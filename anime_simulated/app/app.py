@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import json
 import pickle
 import numpy as np
 import pandas as pd
@@ -62,6 +63,11 @@ def compute_predictions(ml_df: pd.DataFrame):
     out["y_proba"] = proba
     out["y_pred"] = preds
     return out
+@st.cache_data
+def load_stability():
+    path = MODELS_DIR.parent / "results" / "stability_anime.json"
+    with open(path, "r") as f:
+        return json.load(f)
 # ---------------------------------------------------
 # Load data once
 # ---------------------------------------------------
@@ -69,6 +75,7 @@ logs_df = load_logs()
 ml_df = load_ml_dataset()
 pred_df = compute_predictions(ml_df)
 model, feature_cols = load_model()
+stability = load_stability()
 # ---------------------------------------------------
 # Sidebar navigation
 # ---------------------------------------------------
@@ -82,6 +89,7 @@ section = st.sidebar.radio(
         "Cohort analysis",
         "Engagement insights",
         "Model explainer",
+        "Stability & Uncertainty",
         "Episode predictions",
     ],
 )
@@ -325,6 +333,59 @@ elif section == "Model explainer":
     plt.title("Permutation feature importance")
     plt.grid(axis="x")
     st.pyplot(plt.gcf())
+# ---------------------------------------------------
+# Section: Stability & Uncertainty
+# ---------------------------------------------------
+elif section == "Stability & Uncertainty":
+    st.title("Stability & Uncertainty")
+    st.markdown(
+        """
+The "Model explainer" page reports numbers from one 80/20 split. This page
+reports `RepeatedStratifiedKFold(n_splits=5, n_repeats=10)` (50 folds) instead
+-- mean, standard deviation, and a 95% interval per metric, plus
+feature-importance rank stability across folds. Loaded from
+`results/stability_anime.json`.
+"""
+    )
+    metrics_summary = stability["metrics_summary"]
+    rows = [
+        {
+            "metric": name,
+            "mean": s["mean"],
+            "std": s["std"],
+            "ci_low": s["ci_low"],
+            "ci_high": s["ci_high"],
+        }
+        for name, s in metrics_summary.items()
+    ]
+    st.dataframe(pd.DataFrame(rows).set_index("metric").style.format("{:.4f}"))
+    st.markdown(
+        f"""
+These intervals are tight and closely match the single-split numbers on the
+"Model explainer" page -- the original split was not an outlier.
+"""
+    )
+    st.subheader("Feature-importance rank stability (top-3 frequency across 50 folds)")
+    importance_stability = stability["feature_importance_stability"]["features"]
+    imp_df = pd.DataFrame(importance_stability).T[["top_k_frequency", "mean_rank", "std_rank"]]
+    imp_df = imp_df.sort_values("mean_rank")
+    st.dataframe(imp_df)
+    st.caption(
+        "top_k_frequency: fraction of the 50 folds where this feature ranked in the "
+        "top 3 by permutation importance. std_rank: how much its rank position "
+        "varies across folds -- lower is more stable."
+    )
+    st.markdown(
+        """
+⚠️ **Leakage caveat, confirmed across folds, not just one split:** `anime_num_watch_events`
+and `anime_num_users` are perfectly stable as the top-2 features (rank std 0.000 for
+both) across all 50 folds. `anime_mean_p_continue` -- the feature that is a direct
+aggregate of the label-generating probability (see README) -- never once appears
+in the top-3, holding a perfectly stable rank near the bottom of the list. This
+independently confirms the single-split finding: the leakage is real but
+consistently secondary, not dominant and not an artifact of one split.
+"""
+    )
 # ---------------------------------------------------
 # Section: Episode predictions
 # ---------------------------------------------------

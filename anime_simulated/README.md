@@ -167,6 +167,27 @@ dominate the Steam churn model (see `steam_real/README.md`), but it should be
 read as a labeled leakage signal rather than a genuine behavioral driver when
 interpreting feature-importance rankings.
 
+**Stability and uncertainty:** the numbers above come from one 80/20 split.
+`src/stability.py` runs `RepeatedStratifiedKFold(n_splits=5, n_repeats=10)` (50
+folds) instead, reporting mean/std/95% interval per metric and feature-importance
+rank stability. Results: `results/stability_anime.json`.
+
+| metric | mean | std | 95% interval |
+|---|---|---|---|
+| accuracy | 0.8136 | 0.0030 | [0.8077, 0.8189] |
+| recall | 0.9576 | 0.0024 | [0.9524, 0.9615] |
+| roc_auc | 0.8569 | 0.0039 | [0.8505, 0.8640] |
+
+These closely match the single-split numbers above with tight intervals — the
+original split was not an outlier. Feature-importance stability across the 50
+folds also sharpens the leakage-caveat picture: `anime_num_watch_events` and
+`anime_num_users` are perfectly stable as the top-2 features (top-3 frequency
+1.00, rank std 0.000 for both), while `anime_mean_p_continue` — the leakage
+feature — never once appears in the top-3 across all 50 folds, holding a
+perfectly stable 6th-place rank (out of 10 features, rank std 0.000). This is
+further, independent evidence that the leakage is real but consistently
+secondary, not an artifact of the one split reported above.
+
 ## 🧪 Cohort and Retention Analysis
 
 The project includes:
