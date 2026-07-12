@@ -10,6 +10,14 @@ def load_session_events(path: Path | None = None) -> pd.DataFrame:
         path = PROCESSED_DIR / "session_events.parquet"
     df = pd.read_parquet(path)
     return df
+def load_purchase_table(path: Path | None = None) -> pd.DataFrame:
+    """
+    Load the purchases parquet created by ingestion (owned_games per user).
+    """
+    if path is None:
+        path = PROCESSED_DIR / "purchases.parquet"
+    df = pd.read_parquet(path)
+    return df
 def build_user_features(session_df: pd.DataFrame) -> pd.DataFrame:
     """
     Build user level features and a proxy churn label.
@@ -46,6 +54,35 @@ def build_user_features(session_df: pd.DataFrame) -> pd.DataFrame:
     cutoff = user_df["total_playtime_value"].quantile(0.20)
     user_df["churned"] = (user_df["total_playtime_value"] <= cutoff).astype(int)
     return user_df
+def add_alternate_churn_features(
+    user_df: pd.DataFrame, purchase_df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Add a second, non-circular churn definition based on library breadth
+    rather than playtime depth.
+    Adds:
+      - owned_games: distinct games purchased by the user (from purchase
+        events, independent of playtime)
+      - play_ratio: unique_games / max(owned_games, 1) -- how much of a
+        user's purchased library they actually played
+      - churned_v2: 1 for users in the bottom 20 percent of play_ratio,
+        0 otherwise
+    Restricted to the same population as `churned` (v1) -- users already
+    present in user_df, i.e. users with at least one play event. Every user
+    in that population had at least one purchase record during EDA on
+    steam-200k.csv, so owned_games is not expected to be missing in
+    practice; the merge is still a left join with fillna(0) as a safety net
+    for malformed/future data.
+    Leakage note: churned_v2 is a direct function of unique_games and
+    owned_games. Any model trained against churned_v2 must exclude
+    unique_games, owned_games, and play_ratio from its feature set.
+    """
+    out = user_df.merge(purchase_df, on="user_id", how="left")
+    out["owned_games"] = out["owned_games"].fillna(0).astype(int)
+    out["play_ratio"] = out["unique_games"] / out["owned_games"].clip(lower=1)
+    cutoff = out["play_ratio"].quantile(0.20)
+    out["churned_v2"] = (out["play_ratio"] <= cutoff).astype(int)
+    return out
 def save_ml_dataset(df: pd.DataFrame) -> Path:
     """
     Save the ML ready dataset.
@@ -70,6 +107,9 @@ def run_feature_pipeline(session_events_path: Path | None = None) -> Path:
     print("[features] Building user features and churn label...")
     ml_df = build_user_features(session_df)
     print(f"[features] Users in ML dataset: {len(ml_df)}")
+    print("[features] Adding alternate (library breadth) churn label...")
+    purchase_df = load_purchase_table()
+    ml_df = add_alternate_churn_features(ml_df, purchase_df)
     print("[features] Saving ml_dataset.parquet...")
     out_path = save_ml_dataset(ml_df)
     print(f"[features] Done. Saved to {out_path}")
