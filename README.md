@@ -81,10 +81,15 @@ reported metric or feature-importance ranking. See each subproject's README for 
 (`anime_simulated/README.md`, `steam_real/README.md`), and `*/results/baseline_metrics.json` for the
 underlying generated numbers.
 
-- **Steam churn is circular with its own top features.** `churned` is defined as the
-  bottom 20th percentile of `total_playtime_value`, and that same column (plus two
-  features directly derived from it) is also fed into the model. This is why the
-  Steam model reports ~1.0 accuracy/ROC-AUC — it is not a genuine predictive result.
+- **Steam's original churn definition (v1) is circular with its own top features.**
+  `churned` is defined as the bottom 20th percentile of `total_playtime_value`, and
+  that same column (plus two features directly derived from it) is also fed into the
+  model. This is why the Steam v1 model reports ~1.0 accuracy/ROC-AUC — it is not a
+  genuine predictive result. A second, independent definition (v2 — library breadth:
+  played vs. owned games) has since been added and compared against v1 on the same
+  user population; the two agree no better than chance (Cohen's kappa ≈ -0.03). See
+  `steam_real/README.md` and `steam_real/results/sensitivity_analysis.json` for the
+  full sensitivity analysis.
 - **Anime's continuation label has a smaller, analogous leakage issue.** One feature,
   `anime_mean_p_continue`, is a direct aggregate of `p_continue`, the same probability
   used to draw the `label_next_episode` label during simulation. Unlike Steam's
