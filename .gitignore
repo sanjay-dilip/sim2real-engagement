@@ -16,5 +16,8 @@ venv/
 .DS_Store
 
 # Large data (optional, keep if needed)
-data/raw/*
-data/external/*
+# NOTE: these must be **-prefixed to match the nested per-subproject data/
+# directories (anime_simulated/data/, steam_real/data/) -- there is no
+# top-level data/ directory in this repo, so unprefixed patterns never matched.
+**/data/raw/*
+**/data/external/*

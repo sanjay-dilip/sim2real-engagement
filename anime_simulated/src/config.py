@@ -4,11 +4,10 @@ import numpy as np
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PACKAGE_ROOT / "data"
 EXTERNAL_DIR = DATA_DIR / "external"
-RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 MODELS_DIR = PACKAGE_ROOT / "models"
 # Make sure these exist at runtime
-for d in [DATA_DIR, EXTERNAL_DIR, RAW_DIR, PROCESSED_DIR]:
+for d in [DATA_DIR, EXTERNAL_DIR, PROCESSED_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 # File names
 ANIME_JSON_FILE = "anime-offline-database.json"

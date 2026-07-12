@@ -8,5 +8,3 @@ EXTERNAL_DIR = DATA_DIR / "external"
 PROCESSED_DIR = DATA_DIR / "processed"
 # Models folder
 MODELS_DIR = PROJECT_ROOT / "models"
-# Churn definition in days (will be used later in features.py)
-CHURN_THRESHOLD_DAYS = 30
