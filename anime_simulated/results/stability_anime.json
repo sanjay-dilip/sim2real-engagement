@@ -1,0 +1,125 @@
+{
+  "model_type": "GradientBoostingClassifier",
+  "random_state": 42,
+  "cv_method": "RepeatedStratifiedKFold",
+  "n_splits": 5,
+  "n_repeats": 10,
+  "n_folds_total": 50,
+  "n_rows": 50703,
+  "feature_cols": [
+    "episode_number",
+    "watch_time_sec",
+    "completed_fraction",
+    "engagement_level",
+    "anime_num_watch_events",
+    "anime_num_users",
+    "anime_mean_p_continue",
+    "user_prev_episodes",
+    "user_prev_episodes_this_anime",
+    "user_prev_cont_rate"
+  ],
+  "metrics_summary": {
+    "accuracy": {
+      "mean": 0.8136066686544186,
+      "std": 0.0030444336284262993,
+      "ci_low": 0.8077415286180827,
+      "ci_high": 0.8189182526378069,
+      "n_folds": 50
+    },
+    "precision": {
+      "mean": 0.8122904161995834,
+      "std": 0.0024858171988378346,
+      "ci_low": 0.8074038628619153,
+      "ci_high": 0.8169611821666393,
+      "n_folds": 50
+    },
+    "recall": {
+      "mean": 0.9576469916978856,
+      "std": 0.0024366621340353597,
+      "ci_low": 0.952428948427661,
+      "ci_high": 0.9615009066815455,
+      "n_folds": 50
+    },
+    "f1": {
+      "mean": 0.8789970891802793,
+      "std": 0.0019031584413281282,
+      "ci_low": 0.8753176436951414,
+      "ci_high": 0.8822639260467922,
+      "n_folds": 50
+    },
+    "roc_auc": {
+      "mean": 0.8568646519635713,
+      "std": 0.003876714557253223,
+      "ci_low": 0.8505215734637099,
+      "ci_high": 0.8639560116769394,
+      "n_folds": 50
+    },
+    "pr_auc": {
+      "mean": 0.930904723447108,
+      "std": 0.0020132078993045674,
+      "ci_low": 0.9276567806352432,
+      "ci_high": 0.9345184024774821,
+      "n_folds": 50
+    }
+  },
+  "feature_importance_stability": {
+    "top_k": 3,
+    "n_folds": 50,
+    "features": {
+      "episode_number": {
+        "top_k_frequency": 0.24,
+        "mean_rank": 4.34,
+        "std_rank": 0.8478062928547309
+      },
+      "watch_time_sec": {
+        "top_k_frequency": 0.0,
+        "mean_rank": 8.38,
+        "std_rank": 1.0079277589921505
+      },
+      "completed_fraction": {
+        "top_k_frequency": 0.0,
+        "mean_rank": 8.38,
+        "std_rank": 1.193348914883263
+      },
+      "engagement_level": {
+        "top_k_frequency": 0.36,
+        "mean_rank": 3.68,
+        "std_rank": 0.551065757771026
+      },
+      "anime_num_watch_events": {
+        "top_k_frequency": 1.0,
+        "mean_rank": 1.0,
+        "std_rank": 0.0
+      },
+      "anime_num_users": {
+        "top_k_frequency": 1.0,
+        "mean_rank": 2.0,
+        "std_rank": 0.0
+      },
+      "anime_mean_p_continue": {
+        "top_k_frequency": 0.0,
+        "mean_rank": 6.0,
+        "std_rank": 0.0
+      },
+      "user_prev_episodes": {
+        "top_k_frequency": 0.0,
+        "mean_rank": 8.42,
+        "std_rank": 1.263135069611177
+      },
+      "user_prev_episodes_this_anime": {
+        "top_k_frequency": 0.4,
+        "mean_rank": 3.98,
+        "std_rank": 0.8919137873593124
+      },
+      "user_prev_cont_rate": {
+        "top_k_frequency": 0.0,
+        "mean_rank": 8.82,
+        "std_rank": 0.9623525596056739
+      }
+    }
+  },
+  "notes": [
+    "anime_mean_p_continue is a labeled leakage signal (see README.md); its importance-rank stability here should be read with that caveat, not as confirmation it is a genuine behavioral driver.",
+    "These numbers come from a fresh RepeatedStratifiedKFold run, independent of the single 80/20 split used to train the persisted models/next_episode_model.pkl and documented in results/baseline_metrics.json. Both are legitimate; this file describes the *range*, the other describes one specific trained artifact."
+  ]
+}
