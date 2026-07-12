@@ -1,0 +1,90 @@
+{
+  "label_col": "churned_v2",
+  "model_type": "RandomForestClassifier",
+  "random_state": 42,
+  "cv_method": "RepeatedStratifiedKFold",
+  "n_splits": 5,
+  "n_repeats": 10,
+  "n_folds_total": 50,
+  "n_rows": 11350,
+  "prevalence": 0.22431718061674008,
+  "feature_cols": [
+    "total_playtime_value",
+    "sessions",
+    "avg_session_length",
+    "playtime_per_game"
+  ],
+  "metrics_summary": {
+    "accuracy": {
+      "mean": 0.7305991189427311,
+      "std": 0.006002872141723324,
+      "ci_low": 0.7204185022026431,
+      "ci_high": 0.7421916299559471,
+      "n_folds": 50
+    },
+    "precision": {
+      "mean": 0.2654119885791648,
+      "std": 0.027490112789674268,
+      "ci_low": 0.21344563972309377,
+      "ci_high": 0.3143664211583529,
+      "n_folds": 50
+    },
+    "recall": {
+      "mean": 0.11374937401286646,
+      "std": 0.014069314516420458,
+      "ci_low": 0.08631264686621211,
+      "ci_high": 0.13353634577603143,
+      "n_folds": 50
+    },
+    "f1": {
+      "mean": 0.1590915137921626,
+      "std": 0.018092518225249855,
+      "ci_low": 0.12314395863151577,
+      "ci_high": 0.1864968876177658,
+      "n_folds": 50
+    },
+    "roc_auc": {
+      "mean": 0.5167341686584662,
+      "std": 0.0134023111742452,
+      "ci_low": 0.4947697688065698,
+      "ci_high": 0.5429935633330322,
+      "n_folds": 50
+    },
+    "pr_auc": {
+      "mean": 0.2480976060811307,
+      "std": 0.010698819460934433,
+      "ci_low": 0.22952962934333668,
+      "ci_high": 0.2698259335217716,
+      "n_folds": 50
+    }
+  },
+  "feature_importance_stability": {
+    "top_k": 3,
+    "n_folds": 50,
+    "features": {
+      "total_playtime_value": {
+        "top_k_frequency": 0.84,
+        "mean_rank": 2.42,
+        "std_rank": 0.7583548251421143
+      },
+      "sessions": {
+        "top_k_frequency": 1.0,
+        "mean_rank": 1.04,
+        "std_rank": 0.282842712474619
+      },
+      "avg_session_length": {
+        "top_k_frequency": 0.56,
+        "mean_rank": 3.32,
+        "std_rank": 0.6833291853200798
+      },
+      "playtime_per_game": {
+        "top_k_frequency": 0.6,
+        "mean_rank": 3.22,
+        "std_rank": 0.7637180802642092
+      }
+    }
+  },
+  "notes": [
+    "v2's feature set excludes unique_games/owned_games/play_ratio (used to build churned_v2). Compare this file's ROC-AUC range against the DummyClassifier baseline reported in results/sensitivity_analysis.json before treating any single fold's performance as meaningful."
+  ]
+}

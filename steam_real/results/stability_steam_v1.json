@@ -1,0 +1,96 @@
+{
+  "label_col": "churned",
+  "model_type": "RandomForestClassifier",
+  "random_state": 42,
+  "cv_method": "RepeatedStratifiedKFold",
+  "n_splits": 5,
+  "n_repeats": 10,
+  "n_folds_total": 50,
+  "n_rows": 11350,
+  "prevalence": 0.20370044052863437,
+  "feature_cols": [
+    "total_playtime_value",
+    "sessions",
+    "unique_games",
+    "avg_session_length",
+    "playtime_per_game"
+  ],
+  "metrics_summary": {
+    "accuracy": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0,
+      "n_folds": 50
+    },
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0,
+      "n_folds": 50
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0,
+      "n_folds": 50
+    },
+    "f1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0,
+      "n_folds": 50
+    },
+    "roc_auc": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0,
+      "n_folds": 50
+    },
+    "pr_auc": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0,
+      "n_folds": 50
+    }
+  },
+  "feature_importance_stability": {
+    "top_k": 3,
+    "n_folds": 50,
+    "features": {
+      "total_playtime_value": {
+        "top_k_frequency": 1.0,
+        "mean_rank": 1.0,
+        "std_rank": 0.0
+      },
+      "sessions": {
+        "top_k_frequency": 0.98,
+        "mean_rank": 2.34,
+        "std_rank": 0.5194188275056527
+      },
+      "unique_games": {
+        "top_k_frequency": 0.78,
+        "mean_rank": 3.1,
+        "std_rank": 0.5802884574739973
+      },
+      "avg_session_length": {
+        "top_k_frequency": 0.1,
+        "mean_rank": 3.98,
+        "std_rank": 0.7139999428342743
+      },
+      "playtime_per_game": {
+        "top_k_frequency": 0.14,
+        "mean_rank": 4.58,
+        "std_rank": 1.0119691856242765
+      }
+    }
+  },
+  "notes": [
+    "Near-zero variance here CONFIRMS label circularity -- churned is a deterministic function of total_playtime_value, which the model can see directly. This is not evidence of a good model; it is evidence the leakage is structural and holds across every fold, not just the original single split. See steam_real/README.md."
+  ]
+}
