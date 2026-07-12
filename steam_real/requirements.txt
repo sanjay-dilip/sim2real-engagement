@@ -1,8 +1,8 @@
-pandas
-numpy
-pyarrow
-scikit-learn
-matplotlib
-seaborn
-jupyter
-streamlit
+pandas>=2,<3
+numpy>=1.26,<2
+pyarrow>=19,<20
+scikit-learn>=1,<2
+matplotlib>=3,<4
+seaborn>=0.13,<0.14
+jupyter>=1,<2
+streamlit>=1,<2
