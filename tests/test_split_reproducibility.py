@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from anime_simulated.src.models import train_val_split as anime_train_val_split
+from src.evaluation import shared_train_val_split
 
 
 def _synthetic_binary_dataset(n_rows: int = 200, seed: int = 0):
@@ -56,3 +57,33 @@ def test_steam_style_train_test_split_is_reproducible():
     pd.testing.assert_frame_equal(X_val_a, X_val_b)
     pd.testing.assert_series_equal(y_train_a, y_train_b)
     pd.testing.assert_series_equal(y_val_a, y_val_b)
+
+
+def test_shared_split_is_identical_regardless_of_label_column():
+    """
+    Issue 2's core fairness requirement: v1 and v2 must be evaluated on the
+    exact same held-out users. shared_train_val_split splits on the whole
+    DataFrame (unstratified), so which label column a caller looks at
+    afterwards must not change which rows ended up in train vs. validation.
+    """
+    df = pd.DataFrame(
+        {
+            "user_id": range(200),
+            "total_playtime_value": np.random.default_rng(2).normal(size=200),
+            "churned": np.random.default_rng(3).integers(0, 2, size=200),
+            "churned_v2": np.random.default_rng(4).integers(0, 2, size=200),
+        }
+    )
+
+    train_a, val_a = shared_train_val_split(df)
+    train_b, val_b = shared_train_val_split(df)
+
+    pd.testing.assert_frame_equal(train_a, train_b)
+    pd.testing.assert_frame_equal(val_a, val_b)
+    # The split must not depend on which label column exists/is inspected --
+    # dropping one label column and re-splitting the same row set is
+    # equivalent to splitting the full frame, since the split key is the
+    # DataFrame's index/row order, not any label value.
+    train_c, val_c = shared_train_val_split(df.drop(columns=["churned_v2"]))
+    assert list(train_a["user_id"]) == list(train_c["user_id"])
+    assert list(val_a["user_id"]) == list(val_c["user_id"])
