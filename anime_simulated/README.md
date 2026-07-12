@@ -94,12 +94,18 @@ Trains a next-episode classifier using:
 
 - Gradient Boosting
 - ROC AUC, precision, recall
-- Feature importance (permutation)
 
 The trained model is saved to:
 `models/next_episode_model.pkl`
 
 Everything is reproducible through the Python entrypoint.
+
+**Note:** `run_anime_pipeline.py` itself does not compute feature importance —
+it only trains, evaluates, and saves the model. Feature importance (both Gini
+and permutation) is generated separately by `src/export_baseline.py`, written
+to `results/baseline_metrics.json`, and also computed live in the Streamlit
+dashboard's "Model explainer" page. See the leakage caveat below before
+trusting any single feature's importance rank.
 
 ## 🔎 Notebooks
 ### 1. explore_metadata.ipynb
@@ -127,7 +133,8 @@ Everything is reproducible through the Python entrypoint.
 - visual evaluation of the ML model
 - ROC curve
 - precision/recall
-- feature importance
+- feature importance (ad hoc, not persisted by this notebook — see
+  `results/baseline_metrics.json` for the reproducible version)
 - performance by episode number
 
 ## 🤖 Simulated Engagement Model
@@ -148,6 +155,17 @@ The model predicts: `P(user continues to next episode)`
 - ROC AUC: ~0.85
 
 The scores make sense because the simulator has structure that the model can learn.
+
+**Label-construction caveat:** one feature, `anime_mean_p_continue`, is a direct
+aggregate of `p_continue` — the same probability the simulator uses to draw
+`label_next_episode` in the first place (`src/simulation_pipeline.py`). This is
+a real, if secondary, form of label leakage: in `results/baseline_metrics.json`
+it accounts for ~8% of Gini importance and ~4% of permutation importance,
+noticeably behind `anime_num_watch_events` and `user_prev_episodes_this_anime`,
+so it does not dominate the model the way Steam's playtime-derived features
+dominate the Steam churn model (see `steam_real/README.md`), but it should be
+read as a labeled leakage signal rather than a genuine behavioral driver when
+interpreting feature-importance rankings.
 
 ## 🧪 Cohort and Retention Analysis
 

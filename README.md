@@ -74,6 +74,38 @@ The dashboard is designed for interpretation, not retraining, and focuses on how
 Both pipelines aim to model engagement and churn, but they operate under fundamentally different data constraints.
 The project highlights how modeling decisions are shaped as much by data availability as by algorithm choice.
 
+## Known Limitations
+
+Both pipelines have label-construction caveats that should be read before trusting any
+reported metric or feature-importance ranking. See each subproject's README for detail
+(`anime_simulated/README.md`, `steam_real/README.md`), and `*/results/baseline_metrics.json` for the
+underlying generated numbers.
+
+- **Steam churn is circular with its own top features.** `churned` is defined as the
+  bottom 20th percentile of `total_playtime_value`, and that same column (plus two
+  features directly derived from it) is also fed into the model. This is why the
+  Steam model reports ~1.0 accuracy/ROC-AUC — it is not a genuine predictive result.
+- **Anime's continuation label has a smaller, analogous leakage issue.** One feature,
+  `anime_mean_p_continue`, is a direct aggregate of `p_continue`, the same probability
+  used to draw the `label_next_episode` label during simulation. Unlike Steam's
+  circularity, this feature does not dominate the model (~8% Gini / ~4% permutation
+  importance, well behind `anime_num_watch_events` and `user_prev_episodes_this_anime`),
+  but it is a labeled leakage signal, not a genuine behavioral driver.
+- **The two pipelines' feature spaces are fully disjoint and not comparable.** Anime and
+  Steam share no feature names, model on different populations (synthetic vs. real),
+  and use different label-construction processes. Any similarity or difference in their
+  feature-importance charts is not evidence of anything about "data availability" in
+  isolation — see the next point.
+- **The two pipelines use different importance methods, and `shared/app.py`'s
+  side-by-side comparison should be read as illustrative, not a controlled comparison.**
+  `shared/app.py` plots `.feature_importances_` (Gini/impurity) for both models. This is
+  consistent for Steam, but inconsistent with anime's own dashboard and README, which
+  otherwise present permutation importance as the model's real explanation method.
+  The two models are also different algorithms (GradientBoosting vs. RandomForest), so
+  even same-method Gini values wouldn't be directly comparable across them. Differences
+  shown in that chart reflect a mix of data, label construction, model family, and
+  importance-method effects — not "data availability" alone.
+
 ## How to Run
 
 ```

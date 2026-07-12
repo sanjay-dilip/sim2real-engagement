@@ -1,0 +1,72 @@
+{
+  "model_type": "GradientBoostingClassifier",
+  "random_state": 42,
+  "split": {
+    "method": "train_test_split",
+    "test_size": 0.2,
+    "stratify_on": "label_next_episode",
+    "n_train": 40562,
+    "n_val": 10141
+  },
+  "feature_cols": [
+    "episode_number",
+    "watch_time_sec",
+    "completed_fraction",
+    "engagement_level",
+    "anime_num_watch_events",
+    "anime_num_users",
+    "anime_mean_p_continue",
+    "user_prev_episodes",
+    "user_prev_episodes_this_anime",
+    "user_prev_cont_rate"
+  ],
+  "metrics": {
+    "accuracy": 0.8164875258850212,
+    "precision": 0.8164798473646554,
+    "recall": 0.9550843911284698,
+    "f1": 0.880360012857602,
+    "roc_auc": 0.859116458123966
+  },
+  "gini_importance": {
+    "episode_number": 0.14258900843315642,
+    "watch_time_sec": 0.00020737990761232313,
+    "completed_fraction": 0.0,
+    "engagement_level": 0.12014939993073499,
+    "anime_num_watch_events": 0.35562372338192716,
+    "anime_num_users": 0.13911736748005912,
+    "anime_mean_p_continue": 0.08092374068243938,
+    "user_prev_episodes": 0.00023253822166011001,
+    "user_prev_episodes_this_anime": 0.1610613654339721,
+    "user_prev_cont_rate": 9.54765284383492e-05
+  },
+  "permutation_importance": {
+    "mean": {
+      "episode_number": 0.0816039345792513,
+      "watch_time_sec": 3.166204423958874e-05,
+      "completed_fraction": 0.0,
+      "engagement_level": 0.09529249796350994,
+      "anime_num_watch_events": 0.23905582620100319,
+      "anime_num_users": 0.1488901951294331,
+      "anime_mean_p_continue": 0.03954414729036535,
+      "user_prev_episodes": 7.785971714970862e-05,
+      "user_prev_episodes_this_anime": 0.11145772220644161,
+      "user_prev_cont_rate": 1.0940442502471726e-05
+    },
+    "std": {
+      "episode_number": 0.0028900513761806017,
+      "watch_time_sec": 2.1582351412122296e-05,
+      "completed_fraction": 0.0,
+      "engagement_level": 0.0019350827594590784,
+      "anime_num_watch_events": 0.0019768635381788033,
+      "anime_num_users": 0.002100488741875536,
+      "anime_mean_p_continue": 0.0012649776145480603,
+      "user_prev_episodes": 3.610595712162045e-05,
+      "user_prev_episodes_this_anime": 0.0037837711053761405,
+      "user_prev_cont_rate": 1.5331120180356206e-05
+    }
+  },
+  "notes": [
+    "anime_mean_p_continue is a direct aggregate of p_continue, the same probability used to draw label_next_episode during simulation (src/simulation_pipeline.py). Its importance should be read as a labeled leakage signal, not a genuine behavioral driver. See README.md.",
+    "Metrics and permutation importance are computed on the held-out validation split (20%, random_state=42), using the model already saved to models/next_episode_model.pkl. This script does not retrain the model."
+  ]
+}
