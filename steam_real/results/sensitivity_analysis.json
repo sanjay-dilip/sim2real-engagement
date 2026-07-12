@@ -1,0 +1,201 @@
+{
+  "random_state": 42,
+  "split": {
+    "method": "shared_train_val_split (unstratified, same rows for v1 and v2)",
+    "test_size": 0.2
+  },
+  "note": "v1 here is retrained on a shared, unstratified split for a fair comparison with v2. This is NOT the same model/split as the original churn_model.pkl documented in Issue 1's baseline_metrics.json (that one used a stratified split). Both v1 numbers are legitimate; they answer different questions.",
+  "v1": {
+    "feature_cols": [
+      "total_playtime_value",
+      "sessions",
+      "unique_games",
+      "avg_session_length",
+      "playtime_per_game"
+    ],
+    "n_train": 9080,
+    "n_val": 2270,
+    "prevalence_train": 0.20627753303964758,
+    "metrics": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "prevalence_val": 0.19339207048458149,
+      "roc_auc": 1.0,
+      "pr_auc": 1.0,
+      "confusion_matrix": {
+        "tn": 1831,
+        "fp": 0,
+        "fn": 0,
+        "tp": 439
+      }
+    },
+    "permutation_importance": {
+      "mean": {
+        "total_playtime_value": 0.15350810951357846,
+        "sessions": 0.0,
+        "unique_games": 0.0,
+        "avg_session_length": 0.0,
+        "playtime_per_game": 2.2204460492503132e-17
+      },
+      "std": {
+        "total_playtime_value": 0.006126168913624717,
+        "sessions": 0.0,
+        "unique_games": 0.0,
+        "avg_session_length": 0.0,
+        "playtime_per_game": 4.440892098500627e-17
+      }
+    },
+    "dummy_baseline_metrics": {
+      "accuracy": 0.6814977973568281,
+      "precision": 0.20781893004115226,
+      "recall": 0.23006833712984054,
+      "f1": 0.21837837837837837,
+      "prevalence_val": 0.19339207048458149,
+      "roc_auc": 0.5099003619018946,
+      "pr_auc": 0.19671123407276747,
+      "confusion_matrix": {
+        "tn": 1446,
+        "fp": 385,
+        "fn": 338,
+        "tp": 101
+      }
+    }
+  },
+  "v2": {
+    "feature_cols": [
+      "total_playtime_value",
+      "sessions",
+      "avg_session_length",
+      "playtime_per_game"
+    ],
+    "n_train": 9080,
+    "n_val": 2270,
+    "prevalence_train": 0.2262114537444934,
+    "metrics": {
+      "accuracy": 0.728193832599119,
+      "precision": 0.2171945701357466,
+      "recall": 0.0975609756097561,
+      "f1": 0.13464235624123422,
+      "prevalence_val": 0.21674008810572687,
+      "roc_auc": 0.48881427931264687,
+      "pr_auc": 0.22146987062534929,
+      "confusion_matrix": {
+        "tn": 1605,
+        "fp": 173,
+        "fn": 444,
+        "tp": 48
+      }
+    },
+    "permutation_importance": {
+      "mean": {
+        "total_playtime_value": -0.033909709457049575,
+        "sessions": 0.0006796025496812574,
+        "avg_session_length": -0.041116125728186424,
+        "playtime_per_game": -0.037278571885831314
+      },
+      "std": {
+        "total_playtime_value": 0.007718098504664057,
+        "sessions": 0.009353970766545502,
+        "avg_session_length": 0.008521307583347591,
+        "playtime_per_game": 0.008065688636476826
+      }
+    },
+    "dummy_baseline_metrics": {
+      "accuracy": 0.6559471365638766,
+      "precision": 0.22476190476190477,
+      "recall": 0.23983739837398374,
+      "f1": 0.232055063913471,
+      "prevalence_val": 0.21674008810572687,
+      "roc_auc": 0.5054642559923911,
+      "pr_auc": 0.21866401974277766,
+      "confusion_matrix": {
+        "tn": 1371,
+        "fp": 407,
+        "fn": 374,
+        "tp": 118
+      }
+    }
+  },
+  "label_agreement": {
+    "n_users": 11350,
+    "prevalence_v1": 0.20370044052863437,
+    "prevalence_v2": 0.22431718061674008,
+    "agreement_rate": 0.6530396475770925,
+    "disagreement_rate": 0.3469603524229075,
+    "n_agree": 7412,
+    "n_disagree": 3938,
+    "n_label_changed": 3938,
+    "pct_label_changed": 34.7,
+    "newly_churned_under_v2": 2086,
+    "no_longer_churned_under_v2": 1852,
+    "cohens_kappa": -0.030685707628692604,
+    "confusion_matrix_v1_vs_v2": {
+      "v1_0_v2_0": 6952,
+      "v1_0_v2_1": 2086,
+      "v1_1_v2_0": 1852,
+      "v1_1_v2_1": 460
+    }
+  },
+  "segment_comparison": {
+    "segments": [
+      {
+        "playtime_tier": "Very Low",
+        "segment_size": 2312,
+        "churn_rate_v1": 1.0,
+        "churn_rate_v2": 0.19896193771626297
+      },
+      {
+        "playtime_tier": "Low",
+        "segment_size": 2251,
+        "churn_rate_v1": 0.0,
+        "churn_rate_v2": 0.20079964460239894
+      },
+      {
+        "playtime_tier": "Medium",
+        "segment_size": 2248,
+        "churn_rate_v1": 0.0,
+        "churn_rate_v2": 0.22731316725978648
+      },
+      {
+        "playtime_tier": "High",
+        "segment_size": 2269,
+        "churn_rate_v1": 0.0,
+        "churn_rate_v2": 0.24548259144997797
+      },
+      {
+        "playtime_tier": "Very High",
+        "segment_size": 2270,
+        "churn_rate_v1": 0.0,
+        "churn_rate_v2": 0.24933920704845816
+      }
+    ],
+    "high_risk_v1_count": 2312,
+    "high_risk_v2_count": 2546,
+    "high_risk_overlap_count": 460,
+    "high_risk_overlap_pct_of_v1": 19.9,
+    "high_risk_overlap_pct_of_v2": 18.07
+  },
+  "common_feature_importance_ranking": {
+    "features_compared": [
+      "total_playtime_value",
+      "sessions",
+      "avg_session_length",
+      "playtime_per_game"
+    ],
+    "v1_rank": [
+      "total_playtime_value",
+      "playtime_per_game",
+      "sessions",
+      "avg_session_length"
+    ],
+    "v2_rank": [
+      "sessions",
+      "total_playtime_value",
+      "playtime_per_game",
+      "avg_session_length"
+    ],
+    "top_feature_matches": false
+  }
+}
