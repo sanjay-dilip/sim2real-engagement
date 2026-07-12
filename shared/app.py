@@ -140,6 +140,10 @@ elif section == "Retention & Churn Framing":
         st.markdown(
             """
 Retention is defined as whether a user continues to the next episode. This is a time-based behavioral signal.
+
+**Caveat:** one model feature, `anime_mean_p_continue`, is a direct aggregate of the
+same probability used to draw this label during simulation -- a secondary label-leakage
+signal (~8% of Gini importance). See `anime_simulated/README.md`.
 """
         )
     with col2:
@@ -204,10 +208,17 @@ elif section == "Model Behavior":
         fi_steam.plot(kind="bar", ax=ax)
         st.pyplot(fig)
     st.markdown("""
-**Interpretation:**  
+**Interpretation:**
 The anime model distributes importance across multiple behavioral signals, reflecting richer temporal structure.
 
 The Steam model is dominated by total playtime and related aggregates, which is expected given that churn is defined directly from engagement depth.
 
-These differences highlight how model behavior is shaped by data availability rather than algorithm choice."""
+**Read this as illustrative, not a controlled comparison.** Both charts use Gini
+(impurity) importance for implementation simplicity, but the two models are different
+algorithms (GradientBoosting vs. RandomForest) with disjoint feature sets over
+different populations, and anime's own dashboard/README otherwise present permutation
+importance as that model's primary explanation method. Differences shown here reflect
+a mix of data, label construction, model family, and importance-method effects -- not
+data availability alone. See the root README's "Known Limitations" section and
+`*/results/baseline_metrics.json` for the reproducible numbers behind these charts."""
     )
