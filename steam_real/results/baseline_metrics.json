@@ -1,0 +1,53 @@
+{
+  "model_type": "RandomForestClassifier",
+  "random_state": 42,
+  "split": {
+    "method": "train_test_split",
+    "test_size": 0.2,
+    "stratify_on": "churned",
+    "n_train": 9080,
+    "n_val": 2270
+  },
+  "feature_cols": [
+    "total_playtime_value",
+    "sessions",
+    "unique_games",
+    "avg_session_length",
+    "playtime_per_game"
+  ],
+  "metrics": {
+    "accuracy": 1.0,
+    "precision_0": 1.0,
+    "recall_0": 1.0,
+    "precision_1": 1.0,
+    "recall_1": 1.0,
+    "roc_auc": 1.0
+  },
+  "gini_importance": {
+    "total_playtime_value": 0.4517135802124654,
+    "sessions": 0.020935629902911698,
+    "unique_games": 0.013264133440581624,
+    "avg_session_length": 0.23648465111071032,
+    "playtime_per_game": 0.27760200533333085
+  },
+  "permutation_importance": {
+    "mean": {
+      "total_playtime_value": 0.16875359154120217,
+      "sessions": 0.0,
+      "unique_games": 0.0,
+      "avg_session_length": 0.0,
+      "playtime_per_game": 0.0
+    },
+    "std": {
+      "total_playtime_value": 0.005230624035794217,
+      "sessions": 0.0,
+      "unique_games": 0.0,
+      "avg_session_length": 0.0,
+      "playtime_per_game": 0.0
+    }
+  },
+  "notes": [
+    "churned is defined as the bottom 20th percentile of total_playtime_value (src/features.py). total_playtime_value, avg_session_length, and playtime_per_game are all directly derived from that same column -- this is documented label circularity, not a genuine behavioral signal. See README.md.",
+    "metrics are read from the saved model artifact (models/churn_model.pkl), computed at training time on its held-out validation split. This script does not retrain the model; permutation importance is computed on a validation split reproduced with the same split parameters (test_size=0.2, random_state=42, stratify=churned) used at training time."
+  ]
+}
