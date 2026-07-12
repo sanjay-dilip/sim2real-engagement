@@ -152,9 +152,15 @@ signal (~8% of Gini importance). See `anime_simulated/README.md`.
         st.metric("Proxy Churn Rate", f"{churn_rate:.2f}")
         st.markdown(
             """
-Churn is defined as the bottom 20% of users by total playtime.  
+Churn is defined as the bottom 20% of users by total playtime.
 This proxy is required because session timestamps and inactivity gaps are not available.
 As a result, Steam churn behaves more like a threshold on engagement depth rather than a temporal exit.
+
+**This is one of two churn definitions now implemented for Steam.** A second,
+independent definition based on library breadth (played vs. owned games) agrees
+with this one no better than chance (Cohen's kappa ≈ -0.03) -- see the "Churn
+Definition Comparison" page in the Steam dashboard (`steam_real/app/app.py`) for
+the full sensitivity analysis.
 """
         )
     st.subheader("Proxy Churn Concentration (Steam)")
