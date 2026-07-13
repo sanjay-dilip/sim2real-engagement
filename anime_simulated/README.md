@@ -188,6 +188,16 @@ perfectly stable 6th-place rank (out of 10 features, rank std 0.000). This is
 further, independent evidence that the leakage is real but consistently
 secondary, not an artifact of the one split reported above.
 
+## ✅ Testing
+
+`tests/test_anime_labels.py` covers this pipeline directly: the base
+retention-probability curve, simulation reproducibility and seed-sensitivity,
+and that `add_anime_level_features`/`add_user_level_features` aggregate
+correctly and use only past events. `tests/test_split_reproducibility.py` and
+`tests/test_stability.py` (shared) cover the train/validation split and the
+repeated-CV utility behind the stability table above. Run with `pytest` from
+the repo root.
+
 ## 🧪 Cohort and Retention Analysis
 
 The project includes:

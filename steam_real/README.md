@@ -230,6 +230,19 @@ v1's, consistent with the two definitions capturing different constructs.
 Wall-clock runtime: ~2.5 minutes for both v1 and v2 combined (RandomForest is
 fast; no reduction from the default 10 repeats was needed).
 
+## Testing
+
+`tests/test_steam_labels.py` covers the v1 churn label (bottom-20th-percentile
+cutoff, tie handling) and user-feature aggregation, including the
+zero-playtime divide-by-zero guard. `tests/test_churn_v2.py` covers
+`play_ratio`/`churned_v2` construction, the missing-purchase-record fallback,
+and the leakage guard excluding `unique_games`/`owned_games`/`play_ratio` from
+v2's feature set. `tests/test_label_agreement.py` covers the Cohen's kappa and
+per-tier churn-rate logic behind the sensitivity numbers in section 5 above.
+`tests/test_split_reproducibility.py` and `tests/test_stability.py` (shared)
+cover split determinism and the repeated-CV utility behind the stability
+tables in section 6. Run with `pytest` from the repo root.
+
 ## Notebooks
 ### 1. explore_raw_logs.ipynb
 
