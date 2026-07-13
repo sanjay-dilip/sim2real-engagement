@@ -35,6 +35,10 @@ sim2real-engagement/
 │   ├── app.py
 │   └── README.md
 │
+├── tests/
+│   └── (pytest suite covering label construction, split reproducibility,
+│        stability utilities, and v1/v2 label agreement across both pipelines)
+│
 └── requirements.txt
 ```
 
@@ -118,6 +122,27 @@ underlying generated numbers.
   confirmation the circularity is structural, not a lucky split, and should never be
   read as evidence of a good model. See `anime_simulated/README.md`,
   `steam_real/README.md`, and `*/results/stability_*.json` for full results.
+
+## Testing
+
+`pytest` (26 tests, run from the repo root) backs the claims made above rather
+than the READMEs asserting them on faith:
+
+- `tests/test_anime_labels.py`, `tests/test_steam_labels.py` — label-construction
+  correctness (base retention probability, bottom-20th-percentile churn cutoff
+  and tie handling)
+- `tests/test_churn_v2.py` — `churned_v2` construction and the leakage guard
+  that excludes `unique_games`/`owned_games`/`play_ratio` from its feature set
+- `tests/test_label_agreement.py` — the Cohen's kappa and per-tier churn-rate
+  calculations behind the v1/v2 sensitivity numbers
+- `tests/test_split_reproducibility.py` — that both pipelines' train/validation
+  splits are deterministic given the same seed
+- `tests/test_stability.py` — the repeated stratified k-fold utility
+  (`shared/stability.py`) behind every mean/std/95%-interval table in this repo
+
+```
+pytest
+```
 
 ## How to Run
 
